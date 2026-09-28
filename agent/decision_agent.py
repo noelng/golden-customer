@@ -6,8 +6,9 @@ flagged (name similarity 60–84%, or missing DOB in one record).
 
 Runs in two modes:
   - LIVE:  Uses OpenAI gpt-4o-mini via OPENAI_API_KEY env var
-  - MOCK:  Falls back to deterministic pre-scripted decisions when no API key
-           is set — ensures the demo works without any API dependency.
+  - MOCK:  Falls back to a data-driven smart-mock that uses pre-computed
+           evidence scores (name, email, DOB, phone) to produce a realistic
+           MERGE or SPLIT decision — no API key required for the demo.
 """
 
 import json
@@ -23,6 +24,7 @@ from .tools import (
     check_address_match,
     compare_email_handles,
     compare_names,
+    compare_phone_numbers,
     normalize_dob,
 )
 
@@ -36,6 +38,7 @@ TOOL_REGISTRY = {
     "normalize_dob":          normalize_dob,
     "compare_email_handles":  compare_email_handles,
     "check_address_match":    check_address_match,
+    "compare_phone_numbers":  compare_phone_numbers,
 }
 
 # OpenAI function-calling schemas
@@ -99,79 +102,144 @@ TOOL_SCHEMAS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "compare_phone_numbers",
+            "description": (
+                "Compare two phone number strings after stripping formatting and normalising "
+                "country-code prefixes (+60 / 0060 / 60 → local 0xxx). "
+                "Returns exact match flag and digit-level similarity score."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone_a": {"type": "string", "description": "First phone number"},
+                    "phone_b": {"type": "string", "description": "Second phone number"},
+                },
+                "required": ["phone_a", "phone_b"],
+            },
+        },
+    },
 ]
 
 
 # ---------------------------------------------------------------------------
-# Mock decisions — deterministic fallback for demo without API key
+# Risk flag helpers
 # ---------------------------------------------------------------------------
-MOCK_DECISIONS = {
-    # Key pattern: frozenset of cleaned names
-    frozenset(["jon smith", "john smith"]): {
-        "decision": "MERGE", "confidence": 0.97,
-        "rationale": "Identical email and phone; 'Jon' is a well-known nickname variant of 'John' — all corroborating fields match.",
-        "steps": 3,
-    },
-    frozenset(["aisha binte rahman", "aisha rahman"]): {
-        "decision": "MERGE", "confidence": 0.88,
-        "rationale": "Clean names match exactly after removing 'binte' honorific; email handles are complementary abbreviations; identical phone confirms same person.",
-        "steps": 4,
-    },
-    frozenset(["aisha rahman", "aisha rahman"]): {
-        "decision": "MERGE", "confidence": 0.88,
-        "rationale": "Names match exactly; email handles are complementary abbreviations of the same name; identical phone and address confirm same person.",
-        "steps": 4,
-    },
-    frozenset(["jonathan smith", "jon smith"]): {
-        "decision": "MERGE", "confidence": 0.93,
-        "rationale": "'Jonathan' and 'Jon' are the same name (full vs. short form); email and phone are identical.",
-        "steps": 3,
-    },
-    frozenset(["jonathan smith", "john smith"]): {
-        "decision": "MERGE", "confidence": 0.91,
-        "rationale": "'Jonathan' and 'John' share the same root name; same email domain and phone support this merge.",
-        "steps": 3,
-    },
-    frozenset(["maria garcia", "maría garcía"]): {
-        "decision": "MERGE", "confidence": 0.99,
-        "rationale": "Records differ only by Unicode accent marks on the same Latin characters; identical email and phone confirm same person.",
-        "steps": 2,
-    },
-    frozenset(["james r. thornton", "james thornton"]): {
-        "decision": "MERGE", "confidence": 0.96,
-        "rationale": "Middle initial 'R.' in mortgage record matches core banking; identical email, phone, and address confirm same person.",
-        "steps": 3,
-    },
-}
+def _compute_risk_flags(
+    name_score: int,
+    dob_match: Optional[bool],
+    email_sim: float,
+    phone_match: bool,
+    addr_sim: float,
+    decision: str,
+) -> list[str]:
+    """
+    Return a list of compliance risk flag strings for the audit log.
 
-_DEFAULT_MOCK = {
-    "decision": "MERGE", "confidence": 0.78,
-    "rationale": "Insufficient distinguishing evidence to confirm separate identities; moderate name similarity with matching contact details suggests same person — flagged for human review.",
-    "steps": 3,
-}
+    These let downstream KYC/AML teams filter decisions that need human review.
+    """
+    flags = []
+    if name_score < 70:
+        flags.append("LOW_NAME_SCORE")
+    if dob_match is False:
+        flags.append("DOB_MISMATCH")
+    if dob_match is None:
+        flags.append("DOB_MISSING")
+    if email_sim < 0.3 and email_sim > 0.0:
+        flags.append("LOW_EMAIL_SIMILARITY")
+    if phone_match is False and addr_sim < 0.5:
+        flags.append("PHONE_AND_ADDRESS_MISMATCH")
+    if decision == "MERGE" and name_score < 75:
+        flags.append("MERGE_LOW_CONFIDENCE_NAME")
+    if decision == "SPLIT" and name_score >= 80:
+        flags.append("SPLIT_HIGH_NAME_SCORE")   # worth a human look
+    return flags
 
 
-def _mock_decide(rec_a: dict, rec_b: dict) -> dict:
-    """Return a deterministic mock decision for demo mode."""
-    import unicodedata
+# ---------------------------------------------------------------------------
+# Smart mock — data-driven fallback (no API key required)
+# ---------------------------------------------------------------------------
+def _smart_mock_decide(
+    rec_a: dict,
+    rec_b: dict,
+    name_scores: dict,
+    email_scores: dict,
+    phone_result: dict,
+    dob_match: Optional[bool],
+    addr_scores: dict,
+) -> dict:
+    """
+    Evidence-driven mock decision used when no OpenAI API key is set.
 
-    def clean(n):
-        if not n:
-            return ""
-        n = "".join(
-            c for c in unicodedata.normalize("NFD", n.lower())
-            if unicodedata.category(c) != "Mn"
-        )
-        import re as _re
-        for p in [r"\bbin\b", r"\bbinti\b", r"\bbinte\b", r"\bmr\.?\b", r"\bms\.?\b",
-                  r"\bdr\.?\b", r"\bmdm\.?\b", r"\bmohd\b"]:
-            n = _re.sub(p, "", n)
-        n = _re.sub(r"\b[a-z]\.\s*", "", n)
-        return _re.sub(r"\s+", " ", n).strip()
+    Scoring rubric (max 100 points):
+      +40  name best_score / 100 * 40
+      +20  exact phone match
+      +20  email similarity * 20
+      +10  DOB match (both present and equal)
+      +10  address similarity * 10
 
-    key = frozenset([clean(rec_a.get("name", "")), clean(rec_b.get("name", ""))])
-    result = MOCK_DECISIONS.get(key, _DEFAULT_MOCK).copy()
-    return result
+    Thresholds:
+      >= 60 → MERGE
+       < 60 → SPLIT
+    """
+    name_score  = name_scores.get("best_score", 0)
+    email_sim   = email_scores.get("similarity", 0.0)
+    phone_exact = phone_result.get("match", False)
+    addr_sim    = addr_scores.get("similarity", 0.0)
+
+    score = 0.0
+    score += (name_score / 100) * 40
+    score += 20 if phone_exact else phone_result.get("similarity", 0.0) * 10
+    score += email_sim * 20
+    score += 10 if dob_match is True else 0
+    score += addr_sim * 10
+
+    decision   = "MERGE" if score >= 60 else "SPLIT"
+    confidence = round(min(score / 100, 0.99), 2)
+
+    # Build a human-readable rationale from the evidence
+    evidence_parts = []
+    if name_score >= 90:
+        evidence_parts.append(f"strong name match ({name_score}%)")
+    elif name_score >= 70:
+        evidence_parts.append(f"moderate name match ({name_score}%)")
+    else:
+        evidence_parts.append(f"weak name match ({name_score}%)")
+
+    if phone_exact:
+        evidence_parts.append("identical phone number")
+    elif phone_result.get("similarity", 0) > 0.8:
+        evidence_parts.append("similar phone number")
+    else:
+        evidence_parts.append("different phone numbers")
+
+    if email_sim >= 0.9:
+        evidence_parts.append("near-identical email handles")
+    elif email_sim >= 0.4:
+        evidence_parts.append("similar email handles")
+    elif email_sim > 0:
+        evidence_parts.append("dissimilar email handles")
+
+    if dob_match is True:
+        evidence_parts.append("DOB confirmed match")
+    elif dob_match is False:
+        evidence_parts.append("DOB mismatch")
+    else:
+        evidence_parts.append("DOB unavailable for comparison")
+
+    rationale = (
+        f"{'MERGE' if decision == 'MERGE' else 'SPLIT'} based on evidence score {score:.0f}/100: "
+        + "; ".join(evidence_parts) + "."
+    )
+
+    return {
+        "decision":   decision,
+        "confidence": confidence,
+        "rationale":  rationale,
+        "steps":      1,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -230,7 +298,7 @@ def _live_decide(rec_a: dict, rec_b: dict, client) -> dict:
                         result = {"error": str(e)}
                 else:
                     result = {"error": f"Unknown tool: {fn_name}"}
-                logger.debug("  Tool %s(%s) → %s", fn_name, fn_args, result)
+                logger.debug("  Tool %s(%s) -> %s", fn_name, fn_args, result)
                 messages.append({
                     "role": "tool",
                     "tool_call_id": tc.id,
@@ -240,7 +308,6 @@ def _live_decide(rec_a: dict, rec_b: dict, client) -> dict:
 
         # Agent produced final text — parse the JSON decision
         content = msg.content or ""
-        # Extract the last JSON object from the response
         json_matches = re.findall(r'\{[^{}]*"decision"[^{}]*\}', content, re.DOTALL)
         if json_matches:
             try:
@@ -280,7 +347,7 @@ class DecisionAgent:
         agent = DecisionAgent()
         result = agent.decide(rec_a, rec_b)
         # result: {"decision": "MERGE"|"SPLIT", "confidence": float,
-        #          "rationale": str, "log_entry": dict}
+        #          "rationale": str, "risk_flags": list[str], "log_entry": dict}
     """
 
     def __init__(self, log_path: str = "agent_decisions.jsonl"):
@@ -320,16 +387,18 @@ class DecisionAgent:
 
         Returns:
             {
-                "decision":  "MERGE" | "SPLIT",
-                "confidence": float,
-                "rationale":  str,
-                "log_entry":  dict,   # persisted to agent_decisions.jsonl
+                "decision":    "MERGE" | "SPLIT",
+                "confidence":  float,
+                "rationale":   str,
+                "risk_flags":  list[str],   # compliance flags for human review queue
+                "log_entry":   dict,        # persisted to agent_decisions.jsonl
             }
         """
-        # Compute evidence scores regardless of mode (for the audit log)
+        # Pre-compute all evidence scores (used by both mock and live modes for audit log)
         name_scores  = compare_names(rec_a.get("name", ""), rec_b.get("name", ""))
         email_scores = compare_email_handles(rec_a.get("email", ""), rec_b.get("email", ""))
         addr_scores  = check_address_match(rec_a.get("address", ""), rec_b.get("address", ""))
+        phone_result = compare_phone_numbers(rec_a.get("phone", ""), rec_b.get("phone", ""))
         dob_a        = normalize_dob(rec_a.get("dob"))
         dob_b        = normalize_dob(rec_b.get("dob"))
         dob_match    = (dob_a == dob_b) if (dob_a and dob_b) else None
@@ -338,12 +407,25 @@ class DecisionAgent:
         if self._mode == "live":
             result = _live_decide(rec_a, rec_b, self._client)
         else:
-            result = _mock_decide(rec_a, rec_b)
+            result = _smart_mock_decide(
+                rec_a, rec_b,
+                name_scores, email_scores, phone_result, dob_match, addr_scores,
+            )
 
         decision   = result["decision"]
         confidence = result["confidence"]
         rationale  = result["rationale"]
         steps      = result.get("steps", 1)
+
+        # Compute compliance risk flags
+        risk_flags = _compute_risk_flags(
+            name_score  = name_scores.get("best_score", 0),
+            dob_match   = dob_match,
+            email_sim   = email_scores.get("similarity", 0.0),
+            phone_match = phone_result.get("match", False),
+            addr_sim    = addr_scores.get("similarity", 0.0),
+            decision    = decision,
+        )
 
         # Build audit log entry
         log_entry = {
@@ -361,7 +443,10 @@ class DecisionAgent:
             "name_score":     name_scores.get("best_score", 0),
             "dob_match":      (1 if dob_match else 0) if dob_match is not None else None,
             "email_score":    email_scores.get("similarity", 0.0),
+            "phone_match":    phone_result.get("match", False),
+            "phone_similarity": phone_result.get("similarity", 0.0),
             "address_score":  addr_scores.get("similarity", 0.0),
+            "risk_flags":     risk_flags,
             "agent_steps":    steps,
             "agent_mode":     self._mode,
             "created_at":     datetime.now(timezone.utc).isoformat(),
@@ -372,13 +457,15 @@ class DecisionAgent:
             f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
         logger.info(
-            "Agent [%s] %s ↔ %s → %s (confidence=%.2f)",
-            self._mode, rec_a.get("name"), rec_b.get("name"), decision, confidence
+            "Agent [%s] %s <-> %s -> %s (confidence=%.2f, flags=%s)",
+            self._mode, rec_a.get("name"), rec_b.get("name"),
+            decision, confidence, risk_flags or "none",
         )
 
         return {
             "decision":   decision,
             "confidence": confidence,
             "rationale":  rationale,
+            "risk_flags": risk_flags,
             "log_entry":  log_entry,
         }

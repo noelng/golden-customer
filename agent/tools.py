@@ -12,6 +12,17 @@ from difflib import SequenceMatcher
 
 from thefuzz import fuzz
 
+
+def _normalise_phone(phone: str) -> str:
+    """Strip all non-digit characters and normalise country-code prefix."""
+    if not phone:
+        return ""
+    digits = re.sub(r"\D", "", str(phone))
+    # Normalise Malaysian +60 / 60 prefix → leading 0
+    if digits.startswith("60") and len(digits) >= 11:
+        digits = "0" + digits[2:]
+    return digits
+
 # ---------------------------------------------------------------------------
 # Date formats the normalizer understands
 # ---------------------------------------------------------------------------
@@ -182,3 +193,39 @@ def check_address_match(addr_a: str, addr_b: str) -> dict:
         return {"similarity": 0.0, "clean_a": ca, "clean_b": cb}
     sim = fuzz.token_sort_ratio(ca, cb) / 100.0
     return {"similarity": round(sim, 3), "clean_a": ca, "clean_b": cb}
+
+
+def compare_phone_numbers(phone_a: str, phone_b: str) -> dict:
+    """
+    Compare two phone number strings after stripping formatting.
+
+    Normalises country-code prefixes (e.g. +60 / 0060 / 60 → local 0xxx)
+    before comparing, so "+60123456789" and "0123456789" are treated as equal.
+
+    Returns:
+        {
+            "normalised_a": str,    # digits only, normalised prefix
+            "normalised_b": str,
+            "match":        bool,   # exact match after normalisation
+            "similarity":   float,  # 0.0–1.0 (useful for partial/typo cases)
+        }
+    """
+    na = _normalise_phone(phone_a)
+    nb = _normalise_phone(phone_b)
+
+    if not na or not nb:
+        return {
+            "normalised_a": na,
+            "normalised_b": nb,
+            "match":        False,
+            "similarity":   0.0,
+        }
+
+    exact = na == nb
+    sim   = SequenceMatcher(None, na, nb).ratio()
+    return {
+        "normalised_a": na,
+        "normalised_b": nb,
+        "match":        exact,
+        "similarity":   round(sim, 3),
+    }
