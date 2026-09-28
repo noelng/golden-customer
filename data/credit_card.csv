@@ -1,0 +1,31 @@
+client_ref,name,dob,contact_email,mobile,billing_address,card_tier
+CC101,James Thornton,15/06/1978,james.thornton@email.com,+60123456789,12 Jalan Bukit Bintang KL,platinum
+CC102,Sarah Lim,22/11/1990,sarah.lim@gmail.com,+60198765432,45 Taman Desa PJ,gold
+CC103,Ahmad Farid Hassan,08/03/1985,ahmad.farid@yahoo.com,+60112233445,88 Jalan Ampang KL,silver
+CC104,P. Nair,30/07/1992,priya.nair@hotmail.com,+60134455667,22 SS2 PJ,gold
+CC105,D. Wong,01/12/1975,david.wong@gmail.com,+60167788990,5 Damansara Heights,platinum
+CC106,Nurul Ain Razak,14/09/1988,nurul.ain@gmail.com,+60145566778,77 Setapak KL,silver
+CC107,John Smith,25/04/1983,jon.smith@email.com,+60156677889,34 Bangsar South KL,gold
+CC108,Aisha Rahman,14/07/1990,aisha.r@gmail.com,+60189900112,19 Chow Kit KL,silver
+CC109,Lim Boon Keat,18/02/1970,lim.boonkeat@gmail.com,+60112344321,66 Kepong KL,gold
+CC110,Michelle Tan,07/08/1995,michelle.tan@email.com,+60134321234,8 Mont Kiara KL,platinum
+CC111,Rajesh Kumar,20/05/1980,rajesh.kumar@gmail.com,+60167654321,33 Brickfields KL,silver
+CC112,Farah Hana Othman,11/01/1993,farah.hana@email.com,+60189876543,55 Wangsa Maju,gold
+CC113,Tan Ah Kow,30/10/1965,tan.ahkow@gmail.com,+60112345678,11 Pandan Indah KL,silver
+CC114,Deepa Menon,22/06/1987,deepa.menon@hotmail.com,+60145678901,44 Taman Tun KL,gold
+CC115,Zulkifli Ismail,05/11/1978,zulkifli@gmail.com,+60156789012,66 Semarak KL,silver
+CC116,Chua Mei Ling,17/03/1991,chua.meiling@email.com,+60167890123,28 Desa Pandan KL,gold
+CC117,Kavitha Pillai,28/08/1984,kavitha.pillai@gmail.com,+60178901234,9 Kerinchi KL,silver
+CC118,Zainal Abidin Yusof,09/12/1972,zainal.abidin@yahoo.com,+60189012345,71 Gombak KL,gold
+CC119,Jennifer Ooi,03/04/1996,jenny.ooi@gmail.com,+60190123456,3 Bukit Jalil KL,silver
+CC120,Harish Nambiar,16/07/1989,harish.nambiar@email.com,+60121234567,50 Subang Jaya,gold
+CC121,Siti Zubaidah Kamal,25/02/1994,siti.zubaidah@gmail.com,+60132345678,14 Puchong Jaya,silver
+CC122,Lee Chong Wei,11/09/1982,lee.cw@gmail.com,+60143456789,37 Jalan Ipoh KL,platinum
+CC123,Maria Garcia,12/04/1988,maria.garcia@email.com,+60154567890,25 KLCC KL,gold
+CC124,Thomas Bradley,14/01/1977,tom.bradley@email.com,+60165678901,88 Sri Hartamas KL,gold
+CC125,Nurhafizah Mokhtar,30/06/1990,nurhafizah@gmail.com,+60176789012,42 Titiwangsa KL,silver
+CC126,Sanjay Mehta,08/10/1986,sanjay.mehta@gmail.com,+60187890123,16 Bukit Damansara,gold
+CC127,Lena Johansson,19/05/1993,lena.j@email.com,+60198901234,7 Bangsar KL,silver
+CC128,Kevin Tan,22/03/1981,kevin.tan@gmail.com,+60129012345,61 Pandan Jaya KL,gold
+CC129,Wan Norazlina Wan Ali,04/08/1975,wan.norazlina@gmail.com,+60130123456,29 Sentul KL,silver
+CC130,Robert Chan,15/05/1969,,+60141234567,52 OUG KL,gold

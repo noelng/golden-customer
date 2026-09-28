@@ -1,0 +1,5 @@
+pandas>=2.0.0
+thefuzz>=0.22.1
+python-levenshtein>=0.25.0
+openai>=1.30.0
+pytest>=8.0.0

@@ -1,0 +1,31 @@
+cust_id,full_name,date_of_birth,email,phone,address,account_type
+CB001,James Thornton,1978-06-15,james.thornton@email.com,+60123456789,12 Jalan Bukit Bintang KL,savings
+CB002,Sarah Lim Wei Ling,1990-11-22,sarah.lim@gmail.com,+60198765432,45 Taman Desa Petaling Jaya,current
+CB003,Ahmad Farid bin Hassan,1985-03-08,ahmad.farid@yahoo.com,+60112233445,88 Jalan Ampang KL,savings
+CB004,Priya Nair,1992-07-30,priya.nair@hotmail.com,+60134455667,22 SS2 Petaling Jaya,current
+CB005,David Wong Kai Shen,1975-12-01,david.wong@gmail.com,+60167788990,5 Damansara Heights KL,savings
+CB006,Nurul Ain binti Razak,1988-09-14,nurul.ain@gmail.com,+60145566778,77 Setapak KL,current
+CB007,Jon Smith,1983-04-25,jon.smith@email.com,+60156677889,34 Bangsar South KL,savings
+CB008,Aisha binte Rahman,,a.rahman@gmail.com,+60189900112,19 Chow Kit KL,current
+CB009,Lim Boon Keat,1970-02-18,lim.boonkeat@gmail.com,+60112344321,66 Kepong KL,savings
+CB010,Michelle Tan Shu Fen,1995-08-07,michelle.tan@email.com,+60134321234,8 Mont Kiara KL,current
+CB011,Rajesh Kumar,1980-05-20,rajesh.kumar@gmail.com,+60167654321,33 Brickfields KL,savings
+CB012,Farah Hana binti Othman,1993-01-11,farah.hana@email.com,+60189876543,55 Wangsa Maju KL,current
+CB013,Tan Ah Kow,1965-10-30,tan.ahkow@gmail.com,+60112345678,11 Pandan Indah KL,savings
+CB014,Deepa Menon,1987-06-22,deepa.menon@hotmail.com,+60145678901,44 Taman Tun KL,current
+CB015,Mohd Zulkifli bin Ismail,1978-11-05,zulkifli@gmail.com,+60156789012,66 Semarak KL,savings
+CB016,Chua Mei Ling,1991-03-17,chua.meiling@email.com,+60167890123,28 Desa Pandan KL,current
+CB017,Kavitha Pillai,1984-08-28,kavitha.pillai@gmail.com,+60178901234,9 Kerinchi KL,savings
+CB018,Zainal Abidin bin Yusof,1972-12-09,zainal.abidin@yahoo.com,+60189012345,71 Gombak KL,current
+CB019,Jenny Ooi Swee Lan,1996-04-03,jenny.ooi@gmail.com,+60190123456,3 Bukit Jalil KL,savings
+CB020,Harish Nambiar,1989-07-16,harish.nambiar@email.com,+60121234567,50 Subang Jaya,current
+CB021,Siti Zubaidah binti Kamal,1994-02-25,siti.zubaidah@gmail.com,+60132345678,14 Puchong Jaya,savings
+CB022,Lee Chong Wei Jr,1982-09-11,lee.cw@gmail.com,+60143456789,37 Jalan Ipoh KL,current
+CB023,Maria Garcia,,maria.garcia@email.com,+60154567890,25 KLCC KL,savings
+CB024,Tom Bradley,1977-01-14,tom.bradley@email.com,+60165678901,88 Sri Hartamas KL,current
+CB025,Nurhafizah binti Mokhtar,1990-06-30,nurhafizah@gmail.com,+60176789012,42 Titiwangsa KL,savings
+CB026,Sanjay Mehta,1986-10-08,sanjay.mehta@gmail.com,+60187890123,16 Bukit Damansara KL,current
+CB027,Lena Johansson,1993-05-19,lena.j@email.com,+60198901234,7 Bangsar KL,savings
+CB028,James Thornton,1978-06-15,,+60123456789,12 Jalan Bukit Bintang KL,savings
+CB029,Kevin Tan,1981-03-22,kevin.tan@gmail.com,+60129012345,61 Pandan Jaya KL,current
+CB030,Wan Norazlina binti Wan Ali,1975-08-04,wan.norazlina@gmail.com,+60130123456,29 Sentul KL,savings

@@ -1,0 +1,31 @@
+applicant_id,applicant_name,birth_date,email_address,contact_number,property_address,loan_amount
+MG001,James R. Thornton,March 15 1978,james.thornton@email.com,+60123456789,12 Jalan Bukit Bintang KL,450000
+MG002,Sarah Lim Wei Ling,November 22 1990,sarah.lim@gmail.com,+60198765432,45 Taman Desa Petaling Jaya,320000
+MG003,Ahmad Farid Bin Hassan,March 8 1985,ahmad.farid@yahoo.com,+60112233445,88 Jalan Ampang KL,280000
+MG004,Priya Nair,July 30 1992,priya.nair@hotmail.com,+60134455667,22 SS2 Petaling Jaya,380000
+MG005,David Wong Kai Shen,December 1 1975,david.wong@gmail.com,+60167788990,5 Damansara Heights KL,600000
+MG006,Nurul Ain Binti Razak,September 14 1988,nurul.ain@gmail.com,+60145566778,77 Setapak KL,220000
+MG007,Jonathan Smith,April 25 1983,jon.smith@email.com,+60156677889,34 Bangsar South KL,340000
+MG008,Aisha Rahman,July 14 1990,aisha.r@gmail.com,+60189900112,19 Chow Kit KL,180000
+MG009,Lim Boon Keat,February 18 1970,lim.boonkeat@gmail.com,+60112344321,66 Kepong KL,250000
+MG010,Michelle Tan Shu Fen,August 7 1995,michelle.tan@email.com,+60134321234,8 Mont Kiara KL,500000
+MG011,Rajesh Kumar,May 20 1980,rajesh.kumar@gmail.com,+60167654321,33 Brickfields KL,300000
+MG012,Farah Hana Binti Othman,January 11 1993,farah.hana@email.com,+60189876543,55 Wangsa Maju KL,270000
+MG013,Tan Ah Kow,October 30 1965,tan.ahkow@gmail.com,+60112345678,11 Pandan Indah KL,150000
+MG014,Deepa Menon,June 22 1987,deepa.menon@hotmail.com,+60145678901,44 Taman Tun KL,420000
+MG015,Mohd Zulkifli Bin Ismail,November 5 1978,zulkifli@gmail.com,+60156789012,66 Semarak KL,310000
+MG016,Chua Mei Ling,March 17 1991,chua.meiling@email.com,+60167890123,28 Desa Pandan KL,290000
+MG017,Kavitha A. Pillai,August 28 1984,kavitha.pillai@gmail.com,+60178901234,9 Kerinchi KL,260000
+MG018,Zainal Abidin Bin Yusof,December 9 1972,zainal.abidin@yahoo.com,+60189012345,71 Gombak KL,200000
+MG019,Jenny Ooi Swee Lan,April 3 1996,jenny.ooi@gmail.com,+60190123456,3 Bukit Jalil KL,350000
+MG020,Harish Nambiar,July 16 1989,harish.nambiar@email.com,+60121234567,50 Subang Jaya,410000
+MG021,Siti Zubaidah Binti Kamal,February 25 1994,siti.zubaidah@gmail.com,+60132345678,14 Puchong Jaya,230000
+MG022,Lee Chong Wei Jr.,September 11 1982,lee.cw@gmail.com,+60143456789,37 Jalan Ipoh KL,370000
+MG023,María García,April 12 1988,maria.garcia@email.com,+60154567890,25 KLCC KL,480000
+MG024,Tom Bradley,January 14 1977,tom.bradley@email.com,+60165678901,88 Sri Hartamas KL,520000
+MG025,Nurhafizah Binti Mokhtar,June 30 1990,nurhafizah@gmail.com,+60176789012,42 Titiwangsa KL,290000
+MG026,Sanjay Mehta,October 8 1986,sanjay.mehta@gmail.com,+60187890123,16 Bukit Damansara KL,440000
+MG027,Lena Johansson,May 19 1993,lena.j@email.com,+60198901234,7 Bangsar KL,310000
+MG028,Kevin Tan,March 22 1981,kevin.tan@gmail.com,+60129012345,61 Pandan Jaya KL,280000
+MG029,Wan Norazlina Wan Ali,August 4 1975,wan.norazlina@gmail.com,+60130123456,29 Sentul KL,240000
+MG030,Robert Chan,,,+60141234567,52 OUG KL,195000
